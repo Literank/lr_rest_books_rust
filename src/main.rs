@@ -3,9 +3,11 @@ extern crate rocket;
 
 use rocket::response::content;
 
-#[get("/ping")]
+// Define a health endpoint handler, use `/health` or `/`
+#[get("/")]
 fn ping() -> content::RawJson<&'static str> {
-    content::RawJson("{\"message\": \"pong\"}")
+    // Return a simple response indicating the server is healthy
+    content::RawJson("{\"status\":\"ok\"}")
 }
 
 #[launch]
