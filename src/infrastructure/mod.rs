@@ -1,3 +1,3 @@
 mod config;
-pub use config::{ApplicationConfig, Config, DBConfig};
+pub use config::{parse_config, Config};
 pub mod database;

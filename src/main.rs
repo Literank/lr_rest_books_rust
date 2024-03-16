@@ -6,17 +6,13 @@ mod application;
 mod domain;
 mod infrastructure;
 use crate::adapter::router::*;
-use crate::infrastructure::{ApplicationConfig, Config, DBConfig};
+use crate::infrastructure::parse_config;
+
+const CONFIG_FILE: &str = "config.toml";
 
 #[launch]
 fn rocket() -> _ {
-    let c = Config {
-        app: ApplicationConfig { port: 8000 },
-        db: DBConfig {
-            file_name: "test.db".to_string(),
-            dsn: "mysql://test_user:test_pass@127.0.0.1:3306/lr_book".to_string(),
-        },
-    };
+    let c = parse_config(CONFIG_FILE);
     let wire_helper = application::WireHelper::new(&c).expect("Failed to create WireHelper");
     let r = adapter::make_router(&wire_helper);
     rocket::build().manage(r).mount(
