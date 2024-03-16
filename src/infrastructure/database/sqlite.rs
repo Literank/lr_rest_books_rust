@@ -1,5 +1,5 @@
 use std::error::Error;
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use chrono::Utc;
 use rusqlite::{params, Connection, Result as RusqliteResult};
@@ -8,14 +8,14 @@ use crate::domain::gateway::BookManager;
 use crate::domain::model;
 
 pub struct SQLitePersistence {
-    conn: Arc<Mutex<Connection>>,
+    conn: Mutex<Connection>,
 }
 
 impl SQLitePersistence {
     pub fn new(file_name: &str) -> RusqliteResult<Self> {
         let conn = Connection::open(file_name)?;
         Ok(SQLitePersistence {
-            conn: Arc::new(Mutex::new(conn)),
+            conn: Mutex::new(conn),
         })
     }
 }
