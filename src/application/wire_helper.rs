@@ -5,12 +5,12 @@ use crate::infrastructure::database;
 use crate::infrastructure::Config;
 
 pub struct WireHelper {
-    persistence: Arc<database::SQLitePersistence>,
+    persistence: Arc<database::MySQLPersistence>,
 }
 
 impl WireHelper {
     pub fn new(c: &Config) -> Result<Self, Box<dyn std::error::Error>> {
-        let persistence = Arc::new(database::SQLitePersistence::new(&c.db.file_name)?);
+        let persistence = Arc::new(database::MySQLPersistence::new(&c.db.dsn)?);
         Ok(WireHelper { persistence })
     }
 

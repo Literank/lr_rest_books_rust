@@ -9,6 +9,7 @@ pub struct Config {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct DBConfig {
     pub file_name: String,
+    pub dsn: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

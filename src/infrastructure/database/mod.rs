@@ -1,3 +1,3 @@
-mod sqlite;
+mod mysql;
 
-pub use sqlite::SQLitePersistence;
+pub use mysql::MySQLPersistence;

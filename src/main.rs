@@ -14,6 +14,7 @@ fn rocket() -> _ {
         app: ApplicationConfig { port: 8000 },
         db: DBConfig {
             file_name: "test.db".to_string(),
+            dsn: "mysql://test_user:test_pass@127.0.0.1:3306/lr_book".to_string(),
         },
     };
     let wire_helper = application::WireHelper::new(&c).expect("Failed to create WireHelper");
