@@ -4,3 +4,5 @@ port = 8080
 [db]
 file_name = "test.db"
 dsn = "mysql://test_user:test_pass@127.0.0.1:3306/lr_book"
+mongo_uri = "mongodb://localhost:27017"
+mongo_db_name = "lr_book"

@@ -12,6 +12,8 @@ pub struct Config {
 pub struct DBConfig {
     pub file_name: String,
     pub dsn: String,
+    pub mongo_uri: String,
+    pub mongo_db_name: String,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

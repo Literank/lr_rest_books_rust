@@ -23,7 +23,12 @@ fn rocket() -> _ {
             get_book,
             create_book,
             update_book,
-            delete_book
+            delete_book,
+            get_reviews_of_book,
+            get_review,
+            create_review,
+            update_review,
+            delete_review
         ],
     )
 }
