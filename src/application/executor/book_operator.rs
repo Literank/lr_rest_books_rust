@@ -2,14 +2,21 @@ use std::sync::Arc;
 
 use crate::domain::gateway;
 use crate::domain::model;
+use crate::infrastructure::cache;
+
+const BOOKS_KEY: &str = "lr-books";
 
 pub struct BookOperator {
     book_manager: Arc<dyn gateway::BookManager>,
+    cache_helper: Arc<dyn cache::Helper>,
 }
 
 impl BookOperator {
-    pub fn new(b: Arc<dyn gateway::BookManager>) -> Self {
-        BookOperator { book_manager: b }
+    pub fn new(b: Arc<dyn gateway::BookManager>, c: Arc<dyn cache::Helper>) -> Self {
+        BookOperator {
+            book_manager: b,
+            cache_helper: c,
+        }
     }
 
     pub fn create_book(&self, b: model::Book) -> Result<model::Book, Box<dyn std::error::Error>> {
@@ -24,7 +31,16 @@ impl BookOperator {
     }
 
     pub fn get_books(&self) -> Result<Vec<model::Book>, Box<dyn std::error::Error>> {
-        self.book_manager.get_books()
+        let raw_value = self.cache_helper.load(BOOKS_KEY)?;
+        if let Some(v) = raw_value {
+            let cached_books = serde_json::from_str(&v)?;
+            Ok(cached_books)
+        } else {
+            let fetched_books = self.book_manager.get_books()?;
+            let v = serde_json::to_string(&fetched_books)?;
+            self.cache_helper.save(BOOKS_KEY, &v)?;
+            Ok(fetched_books)
+        }
     }
 
     pub fn update_book(

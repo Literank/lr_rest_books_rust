@@ -212,7 +212,10 @@ pub fn delete_review(
 
 pub fn make_router(wire_helper: &application::WireHelper) -> RestHandler {
     RestHandler {
-        book_operator: executor::BookOperator::new(wire_helper.book_manager()),
+        book_operator: executor::BookOperator::new(
+            wire_helper.book_manager(),
+            wire_helper.cache_helper(),
+        ),
         review_operator: executor::ReviewOperator::new(wire_helper.review_manager()),
     }
 }
