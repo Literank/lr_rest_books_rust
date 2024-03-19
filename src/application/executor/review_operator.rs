@@ -43,8 +43,9 @@ impl ReviewOperator {
     pub fn get_reviews_of_book(
         &self,
         book_id: u32,
+        query: &str,
     ) -> Result<Vec<model::Review>, Box<dyn std::error::Error>> {
-        self.review_manager.get_reviews_of_book(book_id)
+        self.review_manager.get_reviews_of_book(book_id, query)
     }
 
     pub fn update_review(

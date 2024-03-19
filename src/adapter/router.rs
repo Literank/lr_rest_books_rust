@@ -120,12 +120,16 @@ pub fn delete_book(
     }
 }
 
-#[get("/books/<id>/reviews")]
+#[get("/books/<id>/reviews?<q>")]
 pub fn get_reviews_of_book(
     rest_handler: &rocket::State<RestHandler>,
     id: u32,
+    q: Option<&str>,
 ) -> Result<Json<Vec<model::Review>>, status::Custom<Json<ErrorResponse>>> {
-    match rest_handler.review_operator.get_reviews_of_book(id) {
+    match rest_handler
+        .review_operator
+        .get_reviews_of_book(id, q.unwrap_or(""))
+    {
         Ok(reviews) => Ok(Json(reviews)),
         Err(err) => Err(status::Custom(
             Status::InternalServerError,

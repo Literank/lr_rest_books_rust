@@ -1,7 +1,7 @@
 use std::error::Error;
 
 use mongodb::{
-    bson::{doc, oid::ObjectId, DateTime},
+    bson::{doc, oid::ObjectId, DateTime, Regex},
     error::Error as MongoError,
     sync::{Client, Collection},
 };
@@ -68,8 +68,25 @@ impl ReviewManager for MongoPersistence {
         }
     }
 
-    fn get_reviews_of_book(&self, book_id: u32) -> Result<Vec<Review>, Box<dyn Error>> {
-        let filter = doc! { "book_id": book_id };
+    fn get_reviews_of_book(
+        &self,
+        book_id: u32,
+        keyword: &str,
+    ) -> Result<Vec<Review>, Box<dyn Error>> {
+        let mut filter = doc! { "book_id": book_id };
+        if !keyword.is_empty() {
+            filter = doc! {
+                "$and": [
+                    {
+                        "$or": [
+                            {"title": Regex{pattern: keyword.to_string(), options: String::from("i")}},
+                            {"content": Regex{pattern: keyword.to_string(), options: String::from("i")}},
+                        ]
+                    },
+                    {"book_id": book_id}
+                ]
+            }
+        }
         let cursor = self.coll.find(filter, None)?;
         let mut reviews = Vec::new();
         for result in cursor {
