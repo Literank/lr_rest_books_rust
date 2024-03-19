@@ -30,14 +30,23 @@ impl BookOperator {
         self.book_manager.get_book(id)
     }
 
-    pub fn get_books(&self, offset: u32) -> Result<Vec<model::Book>, Box<dyn std::error::Error>> {
+    pub fn get_books(
+        &self,
+        offset: u32,
+        query: &str,
+    ) -> Result<Vec<model::Book>, Box<dyn std::error::Error>> {
+        // Search results, don't cache it
+        if !query.is_empty() {
+            return self.book_manager.get_books(offset, query);
+        }
+        // Normal list of results
         let k = format!("{}-{}", BOOKS_KEY, offset);
         let raw_value = self.cache_helper.load(&k)?;
         if let Some(v) = raw_value {
             let cached_books = serde_json::from_str(&v)?;
             Ok(cached_books)
         } else {
-            let fetched_books = self.book_manager.get_books(offset)?;
+            let fetched_books = self.book_manager.get_books(offset, "")?;
             let v = serde_json::to_string(&fetched_books)?;
             self.cache_helper.save(&k, &v)?;
             Ok(fetched_books)

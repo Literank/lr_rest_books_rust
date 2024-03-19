@@ -94,10 +94,20 @@ impl BookManager for MySQLPersistence {
         Ok(books.first().cloned())
     }
 
-    fn get_books(&self, offset: u32) -> Result<Vec<model::Book>, Box<dyn Error>> {
+    fn get_books(&self, offset: u32, keyword: &str) -> Result<Vec<model::Book>, Box<dyn Error>> {
         let mut conn = self.pool.get_conn()?;
+        let mut query = format!("SELECT * FROM books LIMIT {}, {}", offset, self.page_size);
+        if !keyword.is_empty() {
+            // Warning: don't do SQL concatenation in production code. It leads to SQL Injection Vulnerabilities.
+            // Here is for tutorial brevity.
+            let term = format!("%{}%", keyword.replace("'", ""));
+            query = format!(
+                "SELECT * FROM books WHERE title LIKE '{}' OR author LIKE '{}' LIMIT {}, {}",
+                term, term, offset, self.page_size
+            );
+        }
         let books = conn.query_map(
-            format!("SELECT * FROM books LIMIT {}, {}", offset, self.page_size),
+            query,
             |(
                 id,
                 title,
