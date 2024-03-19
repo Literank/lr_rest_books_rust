@@ -9,12 +9,13 @@ use crate::domain::model;
 
 pub struct MySQLPersistence {
     pool: Pool,
+    page_size: u32,
 }
 
 impl MySQLPersistence {
-    pub fn new(dsn: &str) -> Result<Self, MySQLError> {
+    pub fn new(dsn: &str, page_size: u32) -> Result<Self, MySQLError> {
         let pool = Pool::new(dsn)?;
-        Ok(MySQLPersistence { pool })
+        Ok(MySQLPersistence { pool, page_size })
     }
 }
 
@@ -93,10 +94,10 @@ impl BookManager for MySQLPersistence {
         Ok(books.first().cloned())
     }
 
-    fn get_books(&self) -> Result<Vec<model::Book>, Box<dyn Error>> {
+    fn get_books(&self, offset: u32) -> Result<Vec<model::Book>, Box<dyn Error>> {
         let mut conn = self.pool.get_conn()?;
         let books = conn.query_map(
-            "SELECT * FROM books",
+            format!("SELECT * FROM books LIMIT {}, {}", offset, self.page_size),
             |(
                 id,
                 title,

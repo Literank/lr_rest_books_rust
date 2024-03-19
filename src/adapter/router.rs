@@ -24,11 +24,12 @@ pub fn health_check() -> content::RawJson<&'static str> {
     content::RawJson("{\"status\":\"ok\"}")
 }
 
-#[get("/books")]
+#[get("/books?<o>")]
 pub fn get_books(
     rest_handler: &rocket::State<RestHandler>,
+    o: Option<u32>,
 ) -> Result<Json<Vec<model::Book>>, status::Custom<Json<ErrorResponse>>> {
-    match rest_handler.book_operator.get_books() {
+    match rest_handler.book_operator.get_books(o.unwrap_or(0)) {
         Ok(books) => Ok(Json(books)),
         Err(err) => Err(status::Custom(
             Status::InternalServerError,

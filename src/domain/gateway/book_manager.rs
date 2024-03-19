@@ -7,5 +7,5 @@ pub trait BookManager: Send + Sync {
     fn update_book(&self, id: u32, b: &model::Book) -> Result<(), Box<dyn Error>>;
     fn delete_book(&self, id: u32) -> Result<(), Box<dyn Error>>;
     fn get_book(&self, id: u32) -> Result<Option<model::Book>, Box<dyn Error>>;
-    fn get_books(&self) -> Result<Vec<model::Book>, Box<dyn Error>>;
+    fn get_books(&self, offset: u32) -> Result<Vec<model::Book>, Box<dyn Error>>;
 }

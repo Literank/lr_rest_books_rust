@@ -1,5 +1,6 @@
 [app]
 port = 8080
+page_size = 5
 
 [db]
 file_name = "test.db"

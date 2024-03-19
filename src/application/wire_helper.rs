@@ -13,7 +13,8 @@ pub struct WireHelper {
 
 impl WireHelper {
     pub fn new(c: &Config) -> Result<Self, Box<dyn std::error::Error>> {
-        let sql_persistence = Arc::new(database::MySQLPersistence::new(&c.db.dsn)?);
+        let sql_persistence =
+            Arc::new(database::MySQLPersistence::new(&c.db.dsn, c.app.page_size)?);
         let no_sql_persistence = Arc::new(database::MongoPersistence::new(
             &c.db.mongo_uri,
             &c.db.mongo_db_name,
