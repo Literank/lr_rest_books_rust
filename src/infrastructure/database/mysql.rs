@@ -4,7 +4,7 @@ use chrono::Utc;
 use mysql::prelude::Queryable;
 use mysql::{Error as MySQLError, Pool};
 
-use crate::domain::gateway::BookManager;
+use crate::domain::gateway::{BookManager, UserManager};
 use crate::domain::model;
 
 pub struct MySQLPersistence {
@@ -143,5 +143,54 @@ impl BookManager for MySQLPersistence {
             },
         )?;
         Ok(books)
+    }
+}
+
+impl UserManager for MySQLPersistence {
+    fn create_user(&self, u: &model::User) -> Result<u32, Box<dyn Error>> {
+        let mut conn = self.pool.get_conn()?;
+        conn.exec::<usize, &str, (String, String, String, bool, String, String)>(
+            "INSERT INTO users (email, password, salt, is_admin, created_at, updated_at)
+             VALUES (?, ?, ?, ?, ?, ?)",
+            (
+                u.email.clone(),
+                u.password.clone(),
+                u.salt.clone(),
+                u.is_admin,
+                u.created_at.clone(),
+                u.updated_at.clone(),
+            ),
+        )?;
+        Ok(conn.last_insert_id() as u32)
+    }
+
+    fn get_user_by_email(&self, email: &str) -> Result<Option<model::User>, Box<dyn Error>> {
+        let mut conn = self.pool.get_conn()?;
+        let users = conn.query_map(
+            format!(
+                "SELECT * FROM users WHERE email = '{}'",
+                email.replace("'", "")
+            ),
+            |(id, email, password, salt, is_admin, created_at, updated_at): (
+                u64,
+                String,
+                String,
+                String,
+                bool,
+                String,
+                String,
+            )| {
+                model::User {
+                    id: id as u32,
+                    email,
+                    password,
+                    salt,
+                    is_admin,
+                    created_at,
+                    updated_at,
+                }
+            },
+        )?;
+        Ok(users.first().cloned())
     }
 }

@@ -31,6 +31,10 @@ impl WireHelper {
         Arc::clone(&self.sql_persistence) as Arc<dyn gateway::BookManager>
     }
 
+    pub fn user_manager(&self) -> Arc<dyn gateway::UserManager> {
+        Arc::clone(&self.sql_persistence) as Arc<dyn gateway::UserManager>
+    }
+
     pub fn review_manager(&self) -> Arc<dyn gateway::ReviewManager> {
         Arc::clone(&self.no_sql_persistence) as Arc<dyn gateway::ReviewManager>
     }

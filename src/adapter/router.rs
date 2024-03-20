@@ -10,6 +10,7 @@ use crate::domain::model;
 pub struct RestHandler {
     book_operator: executor::BookOperator,
     review_operator: executor::ReviewOperator,
+    user_operator: executor::UserOperator,
 }
 
 #[derive(serde::Serialize)]
@@ -219,6 +220,38 @@ pub fn delete_review(
     }
 }
 
+#[post("/users", format = "json", data = "<uc>")]
+pub fn user_sign_up(
+    rest_handler: &rocket::State<RestHandler>,
+    uc: Json<dto::UserCredential>,
+) -> Result<Json<dto::User>, status::Custom<Json<ErrorResponse>>> {
+    match rest_handler.user_operator.create_user(&uc.into_inner()) {
+        Ok(u) => Ok(Json(u)),
+        Err(err) => Err(status::Custom(
+            Status::InternalServerError,
+            Json(ErrorResponse {
+                error: err.to_string(),
+            }),
+        )),
+    }
+}
+
+#[post("/users/sign-in", format = "json", data = "<uc>")]
+pub fn user_sign_in(
+    rest_handler: &rocket::State<RestHandler>,
+    uc: Json<dto::UserCredential>,
+) -> Result<Json<dto::User>, status::Custom<Json<ErrorResponse>>> {
+    match rest_handler.user_operator.sign_in(&uc.email, &uc.password) {
+        Ok(u) => Ok(Json(u)),
+        Err(err) => Err(status::Custom(
+            Status::InternalServerError,
+            Json(ErrorResponse {
+                error: err.to_string(),
+            }),
+        )),
+    }
+}
+
 pub fn make_router(wire_helper: &application::WireHelper) -> RestHandler {
     RestHandler {
         book_operator: executor::BookOperator::new(
@@ -226,5 +259,6 @@ pub fn make_router(wire_helper: &application::WireHelper) -> RestHandler {
             wire_helper.cache_helper(),
         ),
         review_operator: executor::ReviewOperator::new(wire_helper.review_manager()),
+        user_operator: executor::UserOperator::new(wire_helper.user_manager()),
     }
 }

@@ -28,7 +28,9 @@ fn rocket() -> _ {
             get_review,
             create_review,
             update_review,
-            delete_review
+            delete_review,
+            user_sign_up,
+            user_sign_in
         ],
     )
 }
