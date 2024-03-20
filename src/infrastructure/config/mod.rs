@@ -26,6 +26,8 @@ pub struct CacheConfig {
 pub struct ApplicationConfig {
     pub port: i32,
     pub page_size: u32,
+    pub token_secret: String,
+    pub token_hours: u32,
 }
 
 pub fn parse_config(file_name: &str) -> Config {

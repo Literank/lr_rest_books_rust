@@ -13,11 +13,15 @@ const ERR_EMPTY_PASSWORD: &str = "empty password";
 
 pub struct UserOperator {
     user_manager: Arc<dyn gateway::UserManager>,
+    perm_manager: Arc<dyn gateway::PermissionManager>,
 }
 
 impl UserOperator {
-    pub fn new(u: Arc<dyn gateway::UserManager>) -> Self {
-        UserOperator { user_manager: u }
+    pub fn new(u: Arc<dyn gateway::UserManager>, p: Arc<dyn gateway::PermissionManager>) -> Self {
+        UserOperator {
+            user_manager: u,
+            perm_manager: p,
+        }
     }
 
     pub fn create_user(&self, uc: &dto::UserCredential) -> Result<dto::User, Box<dyn Error>> {
@@ -48,7 +52,7 @@ impl UserOperator {
         })
     }
 
-    pub fn sign_in(&self, email: &str, password: &str) -> Result<dto::User, Box<dyn Error>> {
+    pub fn sign_in(&self, email: &str, password: &str) -> Result<dto::UserToken, Box<dyn Error>> {
         if email.is_empty() {
             return Err(ERR_EMPTY_EMAIL.into());
         }
@@ -61,13 +65,30 @@ impl UserOperator {
             if u.password != password_hash {
                 return Err("wrong password".into());
             }
-            Ok(dto::User {
-                id: u.id,
-                email: u.email,
+            let perm = if u.is_admin {
+                model::UserPermission::PermAdmin
+            } else {
+                model::UserPermission::PermUser
+            };
+            let token = self.perm_manager.generate_token(u.id, &u.email, perm)?;
+            Ok(dto::UserToken {
+                user: dto::User {
+                    id: u.id,
+                    email: u.email,
+                },
+                token,
             })
         } else {
             Err("user does not exist".into())
         }
+    }
+
+    pub fn has_permission(
+        &self,
+        token: &str,
+        perm: model::UserPermission,
+    ) -> Result<bool, Box<dyn Error>> {
+        self.perm_manager.has_permission(token, perm)
     }
 }
 

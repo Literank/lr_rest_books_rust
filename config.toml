@@ -1,6 +1,8 @@
 [app]
 port = 8080
 page_size = 5
+token_secret = "I_Love_LiteRank"
+token_hours = 48
 
 [db]
 file_name = "test.db"

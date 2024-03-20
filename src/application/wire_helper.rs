@@ -3,12 +3,14 @@ use std::sync::Arc;
 use crate::domain::gateway;
 use crate::infrastructure::cache;
 use crate::infrastructure::database;
+use crate::infrastructure::token;
 use crate::infrastructure::Config;
 
 pub struct WireHelper {
     sql_persistence: Arc<database::MySQLPersistence>,
     no_sql_persistence: Arc<database::MongoPersistence>,
     kv_store: Arc<cache::RedisCache>,
+    token_keeper: Arc<token::Keeper>,
 }
 
 impl WireHelper {
@@ -20,10 +22,15 @@ impl WireHelper {
             &c.db.mongo_db_name,
         )?);
         let kv_store = Arc::new(cache::RedisCache::new(&c.cache.redis_uri)?);
+        let token_keeper = Arc::new(token::Keeper::new(
+            c.app.token_secret.clone(),
+            c.app.token_hours,
+        ));
         Ok(WireHelper {
             sql_persistence,
             no_sql_persistence,
             kv_store,
+            token_keeper,
         })
     }
 
@@ -33,6 +40,10 @@ impl WireHelper {
 
     pub fn user_manager(&self) -> Arc<dyn gateway::UserManager> {
         Arc::clone(&self.sql_persistence) as Arc<dyn gateway::UserManager>
+    }
+
+    pub fn perm_manager(&self) -> Arc<dyn gateway::PermissionManager> {
+        Arc::clone(&self.token_keeper) as Arc<dyn gateway::PermissionManager>
     }
 
     pub fn review_manager(&self) -> Arc<dyn gateway::ReviewManager> {

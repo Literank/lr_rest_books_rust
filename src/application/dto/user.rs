@@ -9,3 +9,9 @@ pub struct User {
     pub id: u32,
     pub email: String,
 }
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct UserToken {
+    pub user: User,
+    pub token: String,
+}

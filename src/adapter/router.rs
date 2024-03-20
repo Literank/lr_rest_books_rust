@@ -2,6 +2,7 @@ use rocket::http::Status;
 use rocket::response::{content, status};
 use rocket::serde::json::Json;
 
+use crate::adapter::middleware::PermCheck;
 use crate::application;
 use crate::application::dto;
 use crate::application::executor;
@@ -10,7 +11,7 @@ use crate::domain::model;
 pub struct RestHandler {
     book_operator: executor::BookOperator,
     review_operator: executor::ReviewOperator,
-    user_operator: executor::UserOperator,
+    pub user_operator: executor::UserOperator,
 }
 
 #[derive(serde::Serialize)]
@@ -73,6 +74,7 @@ pub fn get_book(
 pub fn create_book(
     rest_handler: &rocket::State<RestHandler>,
     book: Json<model::Book>,
+    _perm_check: PermCheck,
 ) -> Result<Json<model::Book>, status::Custom<Json<ErrorResponse>>> {
     match rest_handler.book_operator.create_book(book.into_inner()) {
         Ok(b) => Ok(Json(b)),
@@ -90,6 +92,7 @@ pub fn update_book(
     rest_handler: &rocket::State<RestHandler>,
     id: u32,
     book: Json<model::Book>,
+    _perm_check: PermCheck,
 ) -> Result<Json<model::Book>, status::Custom<Json<ErrorResponse>>> {
     match rest_handler
         .book_operator
@@ -109,6 +112,7 @@ pub fn update_book(
 pub fn delete_book(
     rest_handler: &rocket::State<RestHandler>,
     id: u32,
+    _perm_check: PermCheck,
 ) -> Result<status::NoContent, status::Custom<Json<ErrorResponse>>> {
     match rest_handler.book_operator.delete_book(id) {
         Ok(_) => Ok(status::NoContent),
@@ -240,7 +244,7 @@ pub fn user_sign_up(
 pub fn user_sign_in(
     rest_handler: &rocket::State<RestHandler>,
     uc: Json<dto::UserCredential>,
-) -> Result<Json<dto::User>, status::Custom<Json<ErrorResponse>>> {
+) -> Result<Json<dto::UserToken>, status::Custom<Json<ErrorResponse>>> {
     match rest_handler.user_operator.sign_in(&uc.email, &uc.password) {
         Ok(u) => Ok(Json(u)),
         Err(err) => Err(status::Custom(
@@ -259,6 +263,9 @@ pub fn make_router(wire_helper: &application::WireHelper) -> RestHandler {
             wire_helper.cache_helper(),
         ),
         review_operator: executor::ReviewOperator::new(wire_helper.review_manager()),
-        user_operator: executor::UserOperator::new(wire_helper.user_manager()),
+        user_operator: executor::UserOperator::new(
+            wire_helper.user_manager(),
+            wire_helper.perm_manager(),
+        ),
     }
 }
