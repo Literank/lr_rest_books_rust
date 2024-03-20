@@ -22,7 +22,7 @@ impl<'r> FromRequest<'r> for PermCheck {
         // Check user permission against required permission
         match rest_handler
             .user_operator
-            .has_permission(token, UserPermission::PermAuthor)
+            .has_permission(token, UserPermission::Author)
         {
             Ok(b) => {
                 if b {

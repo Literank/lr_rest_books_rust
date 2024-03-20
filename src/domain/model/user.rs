@@ -1,10 +1,10 @@
 // UserPermission represents different levels of user permissions.
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, serde::Serialize, serde::Deserialize)]
 pub enum UserPermission {
-    PermNone,
-    PermUser,
-    PermAuthor,
-    PermAdmin,
+    None,
+    User,
+    Author,
+    Admin,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]

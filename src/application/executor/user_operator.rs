@@ -66,9 +66,9 @@ impl UserOperator {
                 return Err("wrong password".into());
             }
             let perm = if u.is_admin {
-                model::UserPermission::PermAdmin
+                model::UserPermission::Admin
             } else {
-                model::UserPermission::PermUser
+                model::UserPermission::User
             };
             let token = self.perm_manager.generate_token(u.id, &u.email, perm)?;
             Ok(dto::UserToken {

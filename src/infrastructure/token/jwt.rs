@@ -26,7 +26,7 @@ impl Keeper {
     // NewTokenKeeper constructs a new JWT token keeper
     pub fn new(secret_key: String, expire_in_hours: u32) -> Self {
         Keeper {
-            secret_key: secret_key,
+            secret_key,
             expire_hours: expire_in_hours as u64,
         }
     }

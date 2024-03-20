@@ -100,7 +100,7 @@ impl BookManager for MySQLPersistence {
         if !keyword.is_empty() {
             // Warning: don't do SQL concatenation in production code. It leads to SQL Injection Vulnerabilities.
             // Here is for tutorial brevity.
-            let term = format!("%{}%", keyword.replace("'", ""));
+            let term = format!("%{}%", keyword.replace('\'', ""));
             query = format!(
                 "SELECT * FROM books WHERE title LIKE '{}' OR author LIKE '{}' LIMIT {}, {}",
                 term, term, offset, self.page_size
@@ -169,7 +169,7 @@ impl UserManager for MySQLPersistence {
         let users = conn.query_map(
             format!(
                 "SELECT * FROM users WHERE email = '{}'",
-                email.replace("'", "")
+                email.replace('\'', "")
             ),
             |(id, email, password, salt, is_admin, created_at, updated_at): (
                 u64,
