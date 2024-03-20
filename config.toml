@@ -1,5 +1,5 @@
 [app]
-port = 8080
+port = 8000
 page_size = 5
 token_secret = "I_Love_LiteRank"
 token_hours = 48
