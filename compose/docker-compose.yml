@@ -1,0 +1,43 @@
+services:
+  lr-rest-books:
+    image: lrbooks-rust:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - ./config.toml:/app/config.toml
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_started
+  redis:
+    image: docker.io/bitnami/redis:7.0
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    ports:
+      - 6379:6379
+  mysql:
+    image: docker.io/bitnami/mysql:5.7.43
+    environment:
+      - MYSQL_DATABASE=lr_book
+      - MYSQL_USER=test_user
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    ports:
+      - 3306:3306
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    volumes:
+      - ~/lr-mysql-data:/bitnami/mysql/data
+  mongo:
+    image: bitnami/mongodb:latest
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/lr-mongodb-data:/bitnami/mongodb

@@ -1,0 +1,14 @@
+[app]
+port = 8000
+page_size = 5
+token_secret = "I_Love_LiteRank"
+token_hours = 48
+
+[db]
+file_name = "test.db"
+dsn = "mysql://test_user:test_pass@mysql:3306/lr_book"
+mongo_uri = "mongodb://mongo:27017"
+mongo_db_name = "lr_book"
+
+[cache]
+redis_uri = "redis://:test_pass@redis:6379/0"
