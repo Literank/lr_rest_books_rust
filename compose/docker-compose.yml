@@ -1,6 +1,8 @@
 services:
   lr-rest-books:
-    image: lrbooks-rust:latest
+    build:
+      context: ../
+      dockerfile: Dockerfile
     ports:
       - 8000:8000
     volumes:
