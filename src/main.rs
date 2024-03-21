@@ -17,7 +17,11 @@ fn rocket() -> _ {
     let wire_helper = application::WireHelper::new(&c).expect("Failed to create WireHelper");
     let r = adapter::make_router(&wire_helper);
     rocket::build()
-        .configure(rocket::Config::figment().merge(("port", c.app.port)))
+        .configure(
+            rocket::Config::figment()
+                .merge(("port", c.app.port))
+                .merge(("address", c.app.address)),
+        )
         .manage(r)
         .mount(
             "/",
